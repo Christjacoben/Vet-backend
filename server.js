@@ -47,31 +47,16 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = "usertoken";
 
 app.use((req, res, next) => {
-  const allowedOrigins = [
-    "https://www.docjhayvetclinic.com",
-    "https://vet-frontend-jh78.onrender.com",
-  ];
-  const origin = req.headers.origin;
+    res.header("Access-Control-Allow-Origin", "https://www.docjhayvetclinic.com");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, cdn-loop, cf-*");
+    res.header("Access-Control-Allow-Credentials", "true");
 
-  console.log("Request Origin:", origin); // Log the origin
-  console.log("Headers Before Setting CORS:", res.getHeaders()); // Debug headers
+    if (req.method === "OPTIONS") {
+        return res.status(200).send();
+    }
 
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization, cdn-loop, cf-*"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    console.log("CORS Headers Set:", res.getHeaders()); // Confirm headers are being set
-  }
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
+    next();
 });
 
 
