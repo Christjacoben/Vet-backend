@@ -46,7 +46,7 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-app.use(cors({ origin: "www.docjhayvetclinic.com", credentials: true }));
+app.use(cors({ origin: "vet-frontend-jh78.onrender.com", credentials: true }));
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
