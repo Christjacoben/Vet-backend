@@ -37,7 +37,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "www.docjhayvetclinic.com",
+    origin: "https://www.docjhayvetclinic.com",
     credentials: true,
   },
 });
@@ -46,7 +46,7 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-app.use(cors({ origin: "vet-frontend-jh78.onrender.com", credentials: true }));
+app.use(cors({ origin: "https://www.docjhayvetclinic.com", credentials: true }));
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
