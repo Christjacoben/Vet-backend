@@ -46,9 +46,12 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-app.use(
-  cors({ origin: "https://www.docjhayvetclinic.com", credentials: true })
-);
+const allowedOrigins = [
+  "https://vet-frontend-jh78.onrender.com",
+  "https://www.docjhayvetclinic.com",
+];
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
@@ -274,6 +277,7 @@ app.post("/api/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
     res.status(200).json({
       message: "Logged in successfully",
@@ -286,6 +290,8 @@ app.post("/api/login", async (req, res) => {
 });
 
 const authenticate = (req, res, next) => {
+  console.log("Headers:", req.headers);
+  console.log("Cookies:", req.cookies);
   const token = req.cookies.token;
 
   if (!token) {
