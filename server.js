@@ -8,6 +8,7 @@ const cookiesParser = require("cookie-parser");
 const { v4: uuidv4 } = require("uuid");
 const http = require("http");
 const { Server } = require("socket.io");
+const { startOfDay, endOfDay } = require("date-fns");
 const axios = require("axios");
 require("dotenv").config();
 
@@ -36,7 +37,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: " http://localhost:5173",
     credentials: true,
   },
 });
@@ -45,7 +46,7 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: " http://localhost:5173", credentials: true }));
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
@@ -79,7 +80,7 @@ const appointmentSchema = new mongoose.Schema({
   contactNumber: String,
   petType: String,
   breed: String,
-  appointmentDate: String,
+  appointmentDateTime: String,
   serviceOffered: {
     type: String,
     enum: [
@@ -271,7 +272,6 @@ app.post("/api/login", async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
     });
     res.status(200).json({
       message: "Logged in successfully",
@@ -307,11 +307,39 @@ app.post("/api/appointment", authenticate, async (req, res) => {
     contactNumber,
     petType,
     breed,
-    appointmentDate,
+    appointmentDateTime,
     serviceOffered,
   } = req.body;
 
   try {
+    const appointmentDate = new Date(appointmentDateTime);
+
+    if (isNaN(appointmentDate)) {
+      console.error("Invalid appointment date:", appointmentDateTime);
+      return res.status(400).json({ error: "Invalid appointment date" });
+    }
+
+    const startOfDayDate = startOfDay(appointmentDate).toISOString();
+    const endOfDayDate = endOfDay(appointmentDate).toISOString();
+
+    const appointmentCount = await Appointment.countDocuments({
+      userId,
+      appointmentDateTime: {
+        $gte: startOfDayDate,
+        $lte: endOfDayDate,
+      },
+    });
+
+    if (appointmentCount >= 2) {
+      console.log(
+        "Maximum appointments reached for the day:",
+        appointmentCount
+      );
+      return res
+        .status(400)
+        .json({ error: "You can only book 2 appointments per day." });
+    }
+
     const appointmentId = uuidv4();
     const newAppointment = new Appointment({
       appointmentId,
@@ -322,11 +350,12 @@ app.post("/api/appointment", authenticate, async (req, res) => {
       contactNumber,
       petType,
       breed,
-      appointmentDate,
+      appointmentDateTime,
       serviceOffered,
     });
 
     await newAppointment.save();
+
     res.status(201).json({ message: "Appointment saved!" });
   } catch (error) {
     console.error("Error saving appointment:", error);
