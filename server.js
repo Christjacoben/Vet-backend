@@ -53,7 +53,10 @@ app.use((req, res, next) => {
   ];
   const origin = req.headers.origin;
 
-  if (allowedOrigins.includes(origin?.replace(/\/$/, ""))) {
+  console.log("Request Origin:", origin); // Log the origin
+  console.log("Headers Before Setting CORS:", res.getHeaders()); // Debug headers
+
+  if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.setHeader(
@@ -61,14 +64,16 @@ app.use((req, res, next) => {
       "Origin, X-Requested-With, Content-Type, Accept, Authorization, cdn-loop, cf-*"
     );
     res.setHeader("Access-Control-Allow-Credentials", "true");
+    console.log("CORS Headers Set:", res.getHeaders()); // Confirm headers are being set
   }
 
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200); // Send OK for preflight requests
+    return res.sendStatus(200);
   }
 
   next();
 });
+
 
 
 app.use(bodyParse.json());
