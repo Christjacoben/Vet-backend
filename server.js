@@ -46,12 +46,26 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-const allowedOrigins = [
-  "https://vet-frontend-jh78.onrender.com",
-  "https://www.docjhayvetclinic.com",
-];
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "https://www.docjhayvetclinic.com",
+    "https://vet-frontend-jh78.onrender.com",
+  ];
+  const origin = req.headers.origin;
 
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+
+  next();
+});
+
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
