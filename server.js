@@ -46,26 +46,9 @@ const PORT = process.env.PORT || 5000;
 
 const JWT_SECRET = "usertoken";
 
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    "https://www.docjhayvetclinic.com",
-    "https://vet-frontend-jh78.onrender.com",
-  ];
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
-
-  next();
-});
-
+app.use(
+  cors({ origin: "https://www.docjhayvetclinic.com", credentials: true })
+);
 app.use(bodyParse.json());
 app.use(cookiesParser());
 
@@ -290,12 +273,13 @@ app.post("/api/login", async (req, res) => {
     );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,
+      sameSite: "None",
     });
     res.status(200).json({
       message: "Logged in successfully",
       user,
+      token,
     });
   } catch (error) {
     console.error("Login error", error);
