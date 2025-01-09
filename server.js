@@ -53,18 +53,23 @@ app.use((req, res, next) => {
   ];
   const origin = req.headers.origin;
 
-  if (allowedOrigins.includes(origin)) {
+  if (allowedOrigins.includes(origin?.replace(/\/$/, ""))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization, cdn-loop, cf-*"
     );
     res.setHeader("Access-Control-Allow-Credentials", "true");
   }
 
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // Send OK for preflight requests
+  }
+
   next();
 });
+
 
 app.use(bodyParse.json());
 app.use(cookiesParser());
