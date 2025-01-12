@@ -288,10 +288,8 @@ app.post("/api/login", async (req, res) => {
 });
 
 const authenticate = (req, res, next) => {
-  console.log("Headers:", req.headers);
   console.log("Cookies:", req.cookies);
   const token = req.cookies.token;
-
   if (!token) {
     return res.status(401).json({ error: "Unauthorized: No token provided" });
   }
